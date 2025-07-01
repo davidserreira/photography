@@ -19,7 +19,7 @@
     "portfolio",
     "portfolio website"
   ],
-  "author": "Ram Patra",
+  "author": "David Cruz",
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/rampatra/photography/issues"
@@ -27,11 +27,7 @@
   "homepage": "https://github.com/rampatra/photography#readme",
   "devDependencies": {
     "del": "^4.1.1",
-    "gulp": "^4.0.2",
-    "gulp-image-resize": "^0.13.1",
-    "gulp-rename": "^1.4.0",
-    "gulp-sass": "^5.0.0",
-    "gulp-uglify": "^3.0.0",
-    "sass": "^1.25.0"
+    "gulp": "^5.0.1",
+    "sharp": "^0.32.6"
   }
 }

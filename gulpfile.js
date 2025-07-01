@@ -1,56 +1,70 @@
 'use strict';
 
-var gulp = require('gulp');
-var imageResize = require('gulp-image-resize');
-var sass = require('gulp-sass')(require('sass'));
-var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
-var del = require('del');
+const gulp = require('gulp');
+const del = require('del');
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
 
-gulp.task('delete', function () {
-    return del(['images/*.*']);
+// Apagar thumbs antigos
+gulp.task('clean-thumbs', function () {
+  return del(['images/thumbs/*.*']);
 });
 
-gulp.task('resize-images', function () {
-    return gulp.src('images/*.*')
-        .pipe(imageResize({
-            width: 1024,
-            imageMagick: true
-        }))
-        .pipe(gulp.dest('images/fulls'))
-        .pipe(imageResize({
-            width: 512,
-            imageMagick: true
-        }))
-        .pipe(gulp.dest('images/thumbs'));
+// Gerar thumbs
+gulp.task('resize-thumbs', function (cb) {
+  const fullsDir = 'images/fulls';
+  const thumbsDir = 'images/thumbs';
+  
+  if (!fs.existsSync(thumbsDir)) {
+    fs.mkdirSync(thumbsDir, { recursive: true });
+  }
+  
+  fs.readdir(fullsDir, (err, files) => {
+    if (err) {
+      console.error('Erro ao ler diretório:', err);
+      return cb(err);
+    }
+    
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'].includes(ext);
+    });
+    
+    if (imageFiles.length === 0) {
+      console.log('Nenhuma imagem encontrada para processar');
+      return cb();
+    }
+    
+    let processed = 0;
+    
+    imageFiles.forEach(file => {
+      const inputPath = path.join(fullsDir, file);
+      const outputPath = path.join(thumbsDir, path.parse(file).name + '.jpg');
+      
+      sharp(inputPath)
+        .resize(512, null, {
+          withoutEnlargement: true,
+          fit: 'inside'
+        })
+        .jpeg({ quality: 80 })
+        .toFile(outputPath)
+        .then(() => {
+          processed++;
+          if (processed === imageFiles.length) {
+            cb();
+          }
+        })
+        .catch(err => {
+          console.error(`Erro ao processar ${file}:`, err.message);
+          processed++;
+          if (processed === imageFiles.length) {
+            cb();
+          }
+        });
+    });
+  });
 });
 
-// compile scss to css
-gulp.task('sass', function () {
-    return gulp.src('./assets/sass/main.scss')
-        .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
-        .pipe(rename({basename: 'main.min'}))
-        .pipe(gulp.dest('./assets/css'));
-});
-
-// watch changes in scss files and run sass task
-gulp.task('sass:watch', function () {
-    gulp.watch('./assets/sass/**/*.scss', ['sass']);
-});
-
-// minify js
-gulp.task('minify-js', function () {
-    return gulp.src('./assets/js/main.js')
-        .pipe(uglify())
-        .pipe(rename({basename: 'main.min'}))
-        .pipe(gulp.dest('./assets/js'));
-});
-
-// build task
-gulp.task('build', gulp.series('sass', 'minify-js'));
-
-// resize images
-gulp.task('resize', gulp.series('resize-images', 'delete'));
-
-// default task
-gulp.task('default', gulp.series('build', 'resize'));
+// Tarefa principal
+gulp.task('resize', gulp.series('clean-thumbs', 'resize-thumbs'));
