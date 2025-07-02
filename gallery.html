@@ -9,6 +9,7 @@ layout: default
 .poptrox-popup .nav-next {
     opacity: 1 !important;
     visibility: visible !important;
+    display: block !important;
 }
 
 /* Garantir que os botões sejam sempre visíveis */
@@ -16,11 +17,12 @@ layout: default
 .poptrox-popup:hover .nav-previous,
 .poptrox-popup:hover .nav-next {
     opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* Reduzir tamanho dos botões */
 .poptrox-popup .closer {
-    background-color: rgba(0, 0, 0, 0.7) !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
     border-radius: 50% !important;
     background-size: 2em !important;
     height: 3em !important;
@@ -28,12 +30,12 @@ layout: default
     position: absolute !important;
     top: 1em !important;
     right: 1em !important;
-    z-index: 1000 !important;
+    z-index: 9999 !important;
 }
 
 .poptrox-popup .nav-previous,
 .poptrox-popup .nav-next {
-    background-color: rgba(0, 0, 0, 0.5) !important;
+    background-color: rgba(0, 0, 0, 0.7) !important;
     border-radius: 10px !important;
     background-size: 3em !important;
     height: 6em !important;
@@ -41,7 +43,7 @@ layout: default
     position: absolute !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
-    z-index: 1000 !important;
+    z-index: 9999 !important;
 }
 
 .poptrox-popup .nav-previous {
@@ -69,13 +71,15 @@ layout: default
     position: relative !important;
 }
 
-/* Para dispositivos móveis */
+/* Para dispositivos móveis - MELHORADO */
 @media screen and (max-width: 736px) {
     .poptrox-popup .closer,
     .poptrox-popup .nav-previous,
     .poptrox-popup .nav-next {
         opacity: 1 !important;
         visibility: visible !important;
+        display: block !important;
+        pointer-events: auto !important;
     }
     
     .poptrox-popup .closer {
@@ -84,6 +88,8 @@ layout: default
         width: 2.5em !important;
         top: 0.5em !important;
         right: 0.5em !important;
+        background-color: rgba(0, 0, 0, 0.9) !important;
+        z-index: 9999 !important;
     }
     
     .poptrox-popup .nav-previous,
@@ -91,6 +97,8 @@ layout: default
         background-size: 2em !important;
         height: 4em !important;
         width: 3em !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        z-index: 9999 !important;
     }
     
     .poptrox-popup .nav-previous {
@@ -100,6 +108,25 @@ layout: default
     .poptrox-popup .nav-next {
         right: 0.5em !important;
     }
+    
+    /* Forçar visibilidade em todos os estados */
+    .poptrox-popup .closer:before,
+    .poptrox-popup .nav-previous:before,
+    .poptrox-popup .nav-next:before {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+}
+
+/* Garantir que os botões nunca sejam escondidos */
+.poptrox-popup * {
+    pointer-events: auto !important;
+}
+
+.poptrox-popup .closer,
+.poptrox-popup .nav-previous,
+.poptrox-popup .nav-next {
+    pointer-events: auto !important;
 }
 </style>
 
@@ -108,7 +135,7 @@ layout: default
 
     <!-- Header -->
     <header id="header">
-        <h1><a href="index.html"><strong>{{ site.header.title }}</strong> {{ site.header.subtitle }}</a></h1>
+        <h1><a href="index.html"><strong>{{ site.header.title }}</strong></a></h1>
     </header>
 
     <!-- Main -->
