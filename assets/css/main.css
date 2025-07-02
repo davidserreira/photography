@@ -139,8 +139,9 @@
 	}
 
 	body {
-		background: #242629;
-	}
+	background: #242629 url("/assets/images/background.jpg") no-repeat center center fixed;
+	background-size: cover;
+}
 
 		body.loading *, body.loading *:before, body.loading *:after {
 			-moz-animation: none !important;
@@ -1986,7 +1987,7 @@
 /* Footer */
 
 	#footer .copyright {
-		color: #505051;
+		color: #000000;
 		font-size: 0.9em;
 	}
 
