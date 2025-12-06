@@ -6,43 +6,66 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
-// Apagar thumbs antigos
+// Recursive function to get all files
+function getAllFiles(dirPath, arrayOfFiles) {
+  const files = fs.readdirSync(dirPath);
+  arrayOfFiles = arrayOfFiles || [];
+
+  files.forEach(function (file) {
+    const fullPath = path.join(dirPath, file);
+    if (fs.statSync(fullPath).isDirectory()) {
+      arrayOfFiles = getAllFiles(fullPath, arrayOfFiles);
+    } else {
+      arrayOfFiles.push(fullPath);
+    }
+  });
+
+  return arrayOfFiles;
+}
+
+// Clean thumbs
 gulp.task('clean-thumbs', function () {
-  return del(['images/thumbs/*.*']);
+  return del(['images/thumbs/**/*']);
 });
 
-// Gerar thumbs
+// Generate thumbs
 gulp.task('resize-thumbs', function (cb) {
   const fullsDir = 'images/fulls';
   const thumbsDir = 'images/thumbs';
-  
+
+  // Ensure thumbs root exists
   if (!fs.existsSync(thumbsDir)) {
     fs.mkdirSync(thumbsDir, { recursive: true });
   }
-  
-  fs.readdir(fullsDir, (err, files) => {
-    if (err) {
-      console.error('Erro ao ler diretório:', err);
-      return cb(err);
-    }
-    
-    const imageFiles = files.filter(file => {
+
+  try {
+    const allFiles = getAllFiles(fullsDir);
+
+    const imageFiles = allFiles.filter(file => {
       const ext = path.extname(file).toLowerCase();
       return ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'].includes(ext);
     });
-    
+
     if (imageFiles.length === 0) {
       console.log('Nenhuma imagem encontrada para processar');
       return cb();
     }
-    
+
     let processed = 0;
-    
+
     imageFiles.forEach(file => {
-      const inputPath = path.join(fullsDir, file);
-      const outputPath = path.join(thumbsDir, path.parse(file).name + '.jpg');
-      
-      sharp(inputPath)
+      // Calculate relative path to maintain structure
+      // e.g. images/fulls/Nature/img.jpg -> Nature/img.jpg
+      const relativePath = path.relative(fullsDir, file);
+      const outputPath = path.join(thumbsDir, relativePath);
+      const outputDir = path.dirname(outputPath);
+
+      // Ensure specific subdirectory exists in thumbs
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+
+      sharp(file)
         .resize(512, null, {
           withoutEnlargement: true,
           fit: 'inside'
@@ -51,20 +74,18 @@ gulp.task('resize-thumbs', function (cb) {
         .toFile(outputPath)
         .then(() => {
           processed++;
-          if (processed === imageFiles.length) {
-            cb();
-          }
+          if (processed === imageFiles.length) cb();
         })
         .catch(err => {
           console.error(`Erro ao processar ${file}:`, err.message);
           processed++;
-          if (processed === imageFiles.length) {
-            cb();
-          }
+          if (processed === imageFiles.length) cb();
         });
     });
-  });
+  } catch (err) {
+    console.error("Erro na leitura dos arquivos:", err);
+    cb();
+  }
 });
 
-// Tarefa principal
 gulp.task('resize', gulp.series('clean-thumbs', 'resize-thumbs'));

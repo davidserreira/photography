@@ -2,32 +2,192 @@
 layout: default
 ---
 
-<style>
-body, html {
-    overflow: auto !important;
-    min-height: 100vh !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-</style>
-
 <!-- Wrapper -->
 <div id="wrapper">
 
     <!-- Header -->
     <header id="header">
-        <h1><a href="index.html"><strong>{{ site.header.title }}</strong></a></h1>
+        <h1><a href="index.html" onclick="resetView(); return false;"><img src="assets/images/logo.png" alt="Logo"
+                    class="header-logo" /></a></h1>
     </header>
 
-    <!-- Main Content -->
-    <div style="position: relative; width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2em; background: url('assets/images/background.jpg') no-repeat center center fixed; background-size: cover;">
-        <div style="text-align: center; max-width: 800px; background: rgba(36, 38, 41, 0.8); padding: 2em; border-radius: 10px;">
-            <img src="assets/images/logo.png" alt="Logo" style="max-width: 600px; margin-bottom: 2em;">
-            <h2>Bem-vindo ao meu portfólio de fotografia</h2>
-            <p>Explore a minha coleção de fotografias.</p>
-            <ul class="actions">
-                <li><a href="gallery.html" class="button special big" style="background-color: #ff3131 !important; box-shadow: inset 0 0 0 2px #ff3131 !important; border-radius: 25px !important;">Ver Álbuns</a></li>
-            </ul>
+    <!-- Navigation/Breadcrumbs (Hidden by default) -->
+    <div id="nav-bar">
+        <button id="back-btn" class="button small icon fa-arrow-left"
+            style="background:transparent; box-shadow:none;">Voltar aos Álbuns</button>
+        <h2 id="current-album-title" style="margin:0 0 0 1em; font-size: 1.5em;"></h2>
+    </div>
+
+    <!-- Album Grid Container -->
+    <div id="albums-view">
+        <!-- JS will inject albums here -->
+    </div>
+
+    <!-- Photos Grid Container (Hidden by default) -->
+    <div id="photos-view" class="main-content" style="display:none;">
+        <div id="main">
+            <!-- JS will inject photos here -->
         </div>
     </div>
+
 </div>
+
+<!-- Data Injection -->
+<script>
+    // Generate the full list of images and their metadata from Jekyll
+    const rawImages = [
+        {% for image in site.static_files %}
+    {% if image.path contains 'fulls' %}
+    {% assign parts = image.path | split: '/' %}
+    {% assign depth = parts | size %}
+    {% if depth > 4 %}
+    {% assign album_name = parts[3] %}
+    {
+        name: "{{ image.name }}",
+            album: "{{ album_name }}",
+                full_url: "{{ site.baseurl }}{{ site.image_fulls_loc }}/{{ album_name }}/{{ image.name }}",
+                    thumb_url: "{{ site.baseurl }}{{ site.image_thumbs_loc }}/{{ album_name }}/{{ image.name }}"
+    },
+    {% else %}
+    {
+        name: "{{ image.name }}",
+            album: "Diversos",
+                full_url: "{{ site.baseurl }}{{ site.image_fulls_loc }}/{{ image.name }}",
+                    thumb_url: "{{ site.baseurl }}{{ site.image_thumbs_loc }}/{{ image.name }}"
+    },
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+];
+
+    // Process Data
+    const albums = {};
+
+    rawImages.forEach(img => {
+        if (!albums[img.album]) {
+            albums[img.album] = {
+                name: img.album,
+                count: 0,
+                cover: img.thumb_url,
+                images: []
+            };
+        }
+        albums[img.album].images.push(img);
+        albums[img.album].count++;
+    });
+
+    // Render Logic
+    document.addEventListener('DOMContentLoaded', () => {
+        // Force scroll to top
+        if (history.scrollRestoration) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+
+        const albumsView = document.getElementById('albums-view');
+        const photosView = document.getElementById('photos-view');
+        const photosContainer = document.getElementById('main');
+        const navBar = document.getElementById('nav-bar');
+        const backBtn = document.getElementById('back-btn');
+        const currentAlbumTitle = document.getElementById('current-album-title');
+
+        // Define function first
+        function resetView() {
+            albumsView.style.display = 'grid';
+            photosView.style.display = 'none';
+            navBar.style.display = 'none';
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
+
+        // Expose global for header link
+        window.resetView = resetView;
+        backBtn.onclick = resetView;
+
+        // Render Albums
+        const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+        const sortedAlbums = Object.values(albums).sort((a, b) => a.name.localeCompare(b.name));
+
+        sortedAlbums.forEach((album, index) => {
+            const displayName = romanNumerals[index] || album.name;
+            const card = document.createElement('div');
+            card.className = 'album-card';
+            card.onclick = () => openAlbum(album.name);
+
+            card.innerHTML = `
+            <div class="album-cover-wrapper">
+                <img src="${album.cover}" alt="${album.name}" class="album-cover">
+                <div class="album-overlay"><i class="icon fa-folder-open-o"></i></div>
+            </div>
+            <div class="album-info">
+                <h3>${displayName}</h3>
+                <span>${album.count} items</span>
+            </div>
+        `;
+            albumsView.appendChild(card);
+        });
+
+        // Check URL hash for direct linking
+        if (window.location.hash) {
+            const hashAlbum = decodeURIComponent(window.location.hash.substring(1));
+            if (albums[hashAlbum]) {
+                openAlbum(hashAlbum);
+            }
+        }
+
+        function openAlbum(albumName) {
+            const album = albums[albumName];
+            if (!album) return;
+
+            // Hide Albums, Show Photos
+            albumsView.style.display = 'none';
+            photosView.style.display = 'block';
+            navBar.style.display = 'flex';
+            currentAlbumTitle.innerText = albumName;
+            window.location.hash = albumName;
+
+            // Render Photos
+            photosContainer.innerHTML = ''; // Clear current
+            album.images.forEach(img => {
+                // Remove extension for display
+                const displayName = img.name.replace(/\.[^/.]+$/, "");
+
+                const article = document.createElement('article');
+                article.className = 'thumb';
+                article.innerHTML = `
+                <a href="${img.full_url}" class="image" title="${displayName}">
+                    <img src="${img.thumb_url}" alt="${displayName}" loading="lazy" />
+                </a>
+                <h2>${displayName}</h2>
+            `;
+                photosContainer.appendChild(article);
+            });
+
+            // Re-init Poptrox for the new content
+            if (jQuery && jQuery.fn.poptrox) {
+                var $main = $(photosContainer);
+                $main.poptrox({
+                    onPopupClose: function () { $main.find('body,html').css('overflow', 'auto'); },
+                    onPopupOpen: function () { $main.find('body,html').css('overflow', 'hidden'); },
+                    usePopupCaption: true,
+                    usePopupNav: true,
+                    windowMargin: 50
+                });
+            }
+        }
+    });
+    // Disable right-click, selection, and dragging
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.addEventListener('selectstart', event => event.preventDefault());
+    document.addEventListener('dragstart', event => event.preventDefault());
+
+    // Disable common keyboard shortcuts for copying/inspecting
+    document.addEventListener('keydown', event => {
+        if (
+            (event.ctrlKey && (event.key === 'c' || event.key === 'u' || event.key === 's' || event.key === 'p')) ||
+            event.key === 'F12'
+        ) {
+            event.preventDefault();
+        }
+    });
+
+</script>

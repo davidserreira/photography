@@ -25,10 +25,24 @@ it's hosted by GitHub for __free__.
 And, of course, you don't want my name at the bottom to show up. You can change it in `_config.yml` file as well as a few other settings like your social links, google analytics, etc. Just do not forget to [build the website](#build-the-website) after you make the changes.
 
 ## Run the website locally to test
+
+### Prerequisites
+
+**Windows:**
+1. Install Ruby using [RubyInstaller](https://rubyinstaller.org/downloads/) - download the "Ruby+Devkit" version
+2. During installation, make sure to check "Add Ruby executables to your PATH"
+3. After installation, open a new terminal and run: `gem install bundler`
+
+**macOS/Linux:**
+- Ruby usually comes pre-installed. If not, install via your package manager.
+
+### Steps
+
 1. `$ cd photography` - go to the project directory
 2. `$ bundle install` - install gems
-3. Change the `baseurl` in `_config.yml`
+3. Change the `baseurl` in `_config.yml` to `""` (empty) for local testing
 4. `$ bundle exec jekyll serve` - start/run the website
+5. Open your browser at `http://localhost:4000`
 
 ### Build the website
 1. `$ cd photography` - go to the project directory

@@ -1,0 +1,343 @@
+:root {
+    --primary-color: #ff3131;
+    --text-color: #ffffff;
+    /* White text for dark theme */
+    --bg-dark: #000000;
+    /* Pure Black background */
+    --card-bg: #1a1a1a;
+    /* Dark gray for cards to stand out slightly from black */
+    --transition-speed: 0.3s;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+}
+
+img {
+    pointer-events: none;
+    /* Disable dragging/saving images easily via mouse */
+    user-select: none;
+}
+
+/* Header Customization */
+/* Header Customization */
+/* Header Customization */
+#header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    /* Follows scroll */
+    width: 100%;
+    z-index: 1;
+    /* Lower z-index so lightbox (20000) is on top */
+    padding: 2em 0 1em 0;
+    height: auto;
+    background: transparent;
+    box-shadow: none;
+    transition: none !important;
+    /* Prevent movement on load */
+    animation: none !important;
+}
+
+#wrapper {
+    background: transparent;
+}
+
+#header h1 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.header-logo {
+    height: 75px;
+    /* Increased from 50px */
+    width: auto;
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* Header Social Icons Customization */
+#header nav {
+    right: 1em;
+}
+
+#header nav ul li a.icon {
+    font-size: 1.2em;
+    color: rgba(255, 255, 255, 0.6);
+    transition: color 0.3s ease;
+}
+
+#header nav ul li a.icon:hover {
+    color: var(--primary-color);
+}
+
+/* Album Grid Layout */
+#albums-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2em;
+    padding: 4em 2em 4em 2em;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+#nav-bar {
+    display: none;
+    /* Controlled by JS */
+    padding: 4em 2em 2em 2em;
+    align-items: center;
+}
+
+#back-btn {
+    color: var(--text-color) !important;
+}
+
+.album-card {
+    background: transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.album-card:hover {
+    transform: translateY(-5px);
+}
+
+.album-cover-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1em;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.album-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.album-card:hover .album-cover {
+    transform: scale(1.05);
+}
+
+.album-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.album-overlay i {
+    font-size: 3em;
+    color: white;
+}
+
+.album-card:hover .album-overlay {
+    opacity: 1;
+}
+
+.album-info h3 {
+    margin: 0;
+    font-size: 1.25em;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: -0.5px;
+}
+
+.album-info span {
+    font-size: 0.9em;
+    color: #999;
+    display: block;
+    margin-top: 0.25em;
+}
+
+/* Thumbnail Improvements (Inside Album) */
+.thumb a.image {
+    overflow: hidden;
+}
+
+.thumb img {
+    transition: transform 0.5s ease, filter 0.3s ease;
+}
+
+.thumb:hover img {
+    transform: scale(1.1);
+    filter: contrast(1.1) brightness(1.05);
+}
+
+/* Poptrox (Lightbox) Customization */
+.poptrox-popup {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    z-index: 20000 !important;
+    /* Ensure it is above everything, including header */
+    pointer-events: none;
+    /* Allow clicks to pass through empty space if needed, but direct children will capture */
+}
+
+/* Re-enable pointer events for contents */
+.poptrox-popup .pic,
+.poptrox-popup .caption,
+.poptrox-popup .closer,
+.poptrox-popup .nav-previous,
+.poptrox-popup .nav-next {
+    pointer-events: auto !important;
+}
+
+.poptrox-popup .loader {
+    display: none !important;
+    /* Hide loader or style it if needed */
+}
+
+.poptrox-popup .pic {
+    cursor: pointer;
+}
+
+/* Ensure caption is still readable without the white frame */
+.poptrox-popup .caption {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    /* Adjust as needed */
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 1.1em;
+    font-weight: 300;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    width: auto !important;
+    margin-bottom: 0 !important;
+}
+
+.poptrox-popup .closer,
+.poptrox-popup .nav-previous,
+.poptrox-popup .nav-next {
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    background: transparent !important;
+    border: none !important;
+    color: transparent !important;
+    /* Hide simplified text */
+    z-index: 10001 !important;
+    /* Force on top */
+}
+
+.poptrox-popup:hover .closer,
+.poptrox-popup:hover .nav-previous,
+.poptrox-popup:hover .nav-next {
+    opacity: 1;
+}
+
+.poptrox-popup .closer {
+    text-decoration: none;
+    width: 60px;
+    height: 60px;
+    right: 10px;
+    top: 10px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001 !important;
+}
+
+.poptrox-popup .closer:before {
+    font-family: 'FontAwesome';
+    content: '\f00d';
+    display: block;
+    font-size: 24px;
+    /* Reset font size for icon */
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.poptrox-popup .nav-previous,
+.poptrox-popup .nav-next {
+    width: 100px;
+    height: 100%;
+    top: 0;
+    position: absolute;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-top: 0;
+}
+
+.poptrox-popup .nav-previous {
+    left: 0;
+}
+
+.poptrox-popup .nav-next {
+    right: 0;
+}
+
+.poptrox-popup .nav-previous:before,
+.poptrox-popup .nav-next:before {
+    font-family: 'FontAwesome';
+    font-size: 60px;
+    /* Larger clearer arrow */
+    color: rgba(255, 255, 255, 0.8);
+    /* Visible color */
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    /* Contrast shadow */
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.poptrox-popup .nav-previous:before {
+    content: '\f104';
+    /* Angle Left (Classic) */
+    transform: rotate(180deg);
+}
+
+.poptrox-popup .nav-next:before {
+    content: '\f105';
+    /* Angle Right (Classic) */
+}
+
+.poptrox-popup .nav-next:hover:before,
+.poptrox-popup .closer:hover:before {
+    color: var(--primary-color);
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+.poptrox-popup .nav-previous:hover:before {
+    color: var(--primary-color);
+    transform: rotate(180deg) scale(1.2);
+    opacity: 1;
+}
+
+/* Mobile Poptrox Fixes */
+@media screen and (max-width: 736px) {
+    #albums-view {
+        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+        padding: 0 1em 2em 1em;
+    }
+
+    .poptrox-popup .closer,
+    .poptrox-popup .nav-previous,
+    .poptrox-popup .nav-next {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+}

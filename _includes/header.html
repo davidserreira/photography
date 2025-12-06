@@ -1,19 +1,21 @@
 <title>{{ site.title }}</title>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-<!--[if lte IE 8]>
-<script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-<link rel="stylesheet" href="assets/css/main.min.css"/>
-<!--[if lte IE 9]>
-<link rel="stylesheet" href="assets/css/ie9.css"/><![endif]-->
-<!--[if lte IE 8]>
-<link rel="stylesheet" href="assets/css/ie8.css"/><![endif]-->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/css/main.min.css" />
+<link rel="stylesheet" href="assets/css/custom.css" />
+
 {% if site.google_analytics %}
 <!-- Google Analytics (GA4) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag() { dataLayer.push(arguments); }
   gtag('js', new Date());
   gtag('config', '{{ site.google_analytics }}');
 </script>
